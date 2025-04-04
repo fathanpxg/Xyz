@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Produksi Beton</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      font-family: 'Roboto', sans-serif;
+      background-color: #e0e0e0;
+    }
+    .app-container {
+      max-width: 480px;
+      margin: auto;
+      background-color: #fff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .header {
+      background-color: #2196f3;
+      color: white;
+      padding: 16px;
+      font-size: 20px;
+      text-align: center;
+    }
+    .form {
+      padding: 16px;
+      flex-grow: 1;
+    }
+    label {
+      display: block;
+      margin-top: 16px;
+      font-weight: bold;
+    }
+    select, input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      margin-top: 8px;
+    }
+    button {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      margin-top: 16px;
+      font-size: 16px;
+      border-radius: 6px;
+    }
+    .btn-primary {
+      background-color: #2196f3;
+      color: white;
+    }
+    .btn-secondary {
+      background-color: #4caf50;
+      color: white;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 24px;
+    }
+    th, td {
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+      text-align: center;
+      font-size: 14px;
+    }
+    th {
+      background-color: #f5f5f5;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <div class="header">Input Produksi Beton</div>
+    <div class="form">
+      <label for="jenis">Jenis Beton</label>
+      <select id="jenis" onchange="updateUkuran()">
+        <option value="">-- Pilih Jenis --</option>
+        <option value="uditch">Uditch</option>
+        <option value="deker">Deker</option>
+      </select>
+
+      <label for="ukuran">Ukuran</label>
+      <select id="ukuran">
+        <option value="">-- Pilih Ukuran --</option>
+      </select>
+
+      <button class="btn-primary" onclick="simpanData()">Simpan Data</button>
+      <button class="btn-secondary" onclick="exportPDF()">Export PDF</button>
+
+      <table id="dataTabel">
+        <thead>
+          <tr>
+            <th>No</th>
+            <th>Tanggal</th>
+            <th>Jenis</th>
+            <th>Ukuran</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script>
+    const ukuranOptions = {
+      uditch: ["20x20", "20x30", "30x30", "30x40", "40x40"],
+      deker: ["40x60", "50x60 tipis", "50x60 tebal", "60x80", "60x100"]
+    };
+
+    function updateUkuran() {
+      const jenis = document.getElementById("jenis").value;
+      const ukuran = document.getElementById("ukuran");
+      ukuran.innerHTML = "<option value=''>-- Pilih Ukuran --</option>";
+      if (ukuranOptions[jenis]) {
+        ukuranOptions[jenis].forEach(opt => {
+          const option = document.createElement("option");
+          option.value = opt;
+          option.textContent = opt;
+          ukuran.appendChild(option);
+        });
+      }
+    }
+
+    function simpanData() {
+      const jenis = document.getElementById("jenis").value;
+      const ukuran = document.getElementById("ukuran").value;
+      const tanggal = new Date().toLocaleDateString("id-ID");
+
+      if (!jenis || !ukuran) {
+        alert("Lengkapi semua pilihan!");
+        return;
+      }
+
+      let data = JSON.parse(localStorage.getItem("dataProduksi")) || [];
+      data.push({ tanggal, jenis, ukuran });
+      localStorage.setItem("dataProduksi", JSON.stringify(data));
+      tampilkanData();
+    }
+
+    function tampilkanData() {
+      const data = JSON.parse(localStorage.getItem("dataProduksi")) || [];
+      const tbody = document.querySelector("#dataTabel tbody");
+      tbody.innerHTML = "";
+      data.forEach((item, i) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td>${i + 1}</td><td>${item.tanggal}</td><td>${item.jenis}</td><td>${item.ukuran}</td>`;
+        tbody.appendChild(tr);
+      });
+    }
+
+    async function exportPDF() {
+      const data = JSON.parse(localStorage.getItem("dataProduksi")) || [];
+      if (data.length === 0) {
+        alert("Data kosong.");
+        return;
+      }
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      doc.text("Laporan Produksi Beton", 10, 10);
+      let y = 20;
+      data.forEach((d, i) => {
+        doc.text(`${i + 1}. ${d.tanggal} - ${d.jenis} (${d.ukuran})`, 10, y);
+        y += 10;
+        if (y > 280) {
+          doc.addPage();
+          y = 10;
+        }
+      });
+      doc.save("Laporan_Produksi.pdf");
+    }
+
+    // Auto hapus data jika sudah 1 bulan
+    (function hapusSetelahSebulan() {
+      const data = JSON.parse(localStorage.getItem("dataProduksi")) || [];
+      if (data.length > 0) {
+        const pertama = new Date(data[0].tanggal.split("/").reverse().join("-"));
+        const sekarang = new Date();
+        const bedaHari = Math.floor((sekarang - pertama) / (1000 * 60 * 60 * 24));
+        if (bedaHari > 30) {
+          localStorage.removeItem("dataProduksi");
+          alert("Data lebih dari 1 bulan telah dihapus.");
+        }
+      }
+    })();
+
+    window.onload = tampilkanData;
+  </script>
+</body>
+</html>

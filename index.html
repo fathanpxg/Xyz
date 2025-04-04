@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - CV. ENAM PUTRA CIREBON</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Roboto', sans-serif;
+      background-color: #e0e0e0;
+    }
+    .app-container {
+      max-width: 480px;
+      margin: auto;
+      background-color: #fff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .header {
+      background-color: #2196f3;
+      color: white;
+      padding: 20px;
+      font-size: 20px;
+      font-weight: bold;
+      text-align: center;
+    }
+    .content {
+      padding: 20px;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .menu-title {
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 30px;
+      color: #333;
+    }
+    .menu-btn {
+      width: 80%;
+      padding: 16px;
+      margin-bottom: 16px;
+      background-color: #4caf50;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      transition: background-color 0.3s ease;
+    }
+    .menu-btn:hover {
+      background-color: #43a047;
+    }
+    .footer {
+      text-align: center;
+      padding: 12px;
+      font-size: 14px;
+      color: #777;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+      <div class="header">CV. ENAM PUTRA CIREBON</div>
+      <div class="content">
+        <div style="height: 30px;"></div> <!-- Spacer -->
+        <div class="menu-title">Daftar Menu</div>
+        <button class="menu-btn" onclick="navigateTo('produksi.html')">Hasil Produksi</button>
+        <button class="menu-btn" onclick="navigateTo('stok.html')">Stok</button>
+        <button class="menu-btn" onclick="navigateTo('absensi.html')">Absensi</button>
+        <button class="menu-btn" onclick="navigateTo('pengambilan.html')">Pengambilan</button>
+        <button class="menu-btn" onclick="navigateTo('bahanbaku.html')">Bahan Baku</button>
+      </div>
+    </div>
+    <div class="footer">Powered By PEXONG</div>
+  </div>
+
+  <script>
+    function navigateTo(page) {
+      window.location.href = page;
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stok Beton</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Roboto', sans-serif;
+      background-color: #e0e0e0;
+    }
+    .app-container {
+      max-width: 480px;
+      margin: auto;
+      background-color: #fff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .header {
+      background-color: #2196f3;
+      color: white;
+      padding: 16px;
+      font-size: 20px;
+      text-align: center;
+    }
+    .content {
+      padding: 16px;
+      flex-grow: 1;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      padding: 12px;
+      border-bottom: 1px solid #ddd;
+      text-align: center;
+      font-size: 14px;
+    }
+    th {
+      background-color: #f5f5f5;
+    }
+    .no-data {
+      text-align: center;
+      margin-top: 20px;
+      color: gray;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <div class="header">Stok Beton</div>
+    <div class="content">
+      <table id="stokTable">
+        <thead>
+          <tr>
+            <th>Jenis</th>
+            <th>Ukuran</th>
+            <th>Jumlah</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Isi tabel akan di-generate via JS -->
+        </tbody>
+      </table>
+      <div class="no-data" id="noData" style="display:none;">Belum ada data produksi.</div>
+    </div>
+  </div>
+
+  <script>
+    function tampilkanStok() {
+      const data = JSON.parse(localStorage.getItem("dataProduksi")) || [];
+      const tbody = document.querySelector("#stokTable tbody");
+      const noData = document.getElementById("noData");
+
+      if (data.length === 0) {
+        noData.style.display = "block";
+        return;
+      } else {
+        noData.style.display = "none";
+      }
+
+      // Hitung stok berdasarkan jenis + ukuran
+      const stokMap = {};
+      data.forEach(item => {
+        const key = `${item.jenis}__${item.ukuran}`;
+        if (!stokMap[key]) stokMap[key] = 0;
+        stokMap[key]++;
+      });
+
+      // Tampilkan ke tabel
+      tbody.innerHTML = "";
+      Object.keys(stokMap).forEach(k => {
+        const [jenis, ukuran] = k.split("__");
+        const jumlah = stokMap[k];
+        const row = `<tr>
+          <td>${jenis}</td>
+          <td>${ukuran}</td>
+          <td>${jumlah}</td>
+        </tr>`;
+        tbody.innerHTML += row;
+      });
+    }
+
+    window.onload = tampilkanStok;
+  </script>
+</body>
+</html>
